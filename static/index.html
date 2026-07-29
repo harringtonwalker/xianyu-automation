@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>闲鱼经营自动化中枢</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">LOCAL OPERATIONS CONTROL PLANE</p>
+        <h1>闲鱼经营自动化中枢</h1>
+        <p class="subtitle">授权商品源 → 真实文案 → 品牌水印图 → 审批队列 → 闲鱼发布回执</p>
+      </div>
+      <div class="runtime">
+        <span id="healthDot" class="dot"></span>
+        <div><strong id="healthText">正在连接</strong><small>仅监听本机 127.0.0.1</small></div>
+      </div>
+    </header>
+
+    <section class="guardrail" id="guardrail">
+      <div>
+        <span class="guardrail-label">账号侧总开关</span>
+        <strong id="publisherState">读取中</strong>
+        <p>关闭时扩展不能领取任何发布任务；启用后仍只执行已经审批的任务。</p>
+      </div>
+      <button id="publisherButton" class="button danger" disabled>切换发布总开关</button>
+    </section>
+
+    <section class="metrics" aria-label="任务概览">
+      <article><span>全部任务</span><strong id="metricAll">0</strong></article>
+      <article><span>待生成</span><strong id="metricIngested">0</strong></article>
+      <article><span>待审批</span><strong id="metricPending">0</strong></article>
+      <article><span>已发布</span><strong id="metricPublished">0</strong></article>
+      <article><span>阻塞/失败</span><strong id="metricBlocked">0</strong></article>
+    </section>
+
+    <main class="grid">
+      <section class="panel intake">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">01 · AUTHORIZED SOURCE</p>
+            <h2>导入自有或已授权商品</h2>
+          </div>
+          <button id="sampleButton" class="button subtle">下载 CSV 模板</button>
+        </div>
+        <div class="notice">
+          不摄取竞争对手商品，不去水印，不搬运 Cookie。浏览器扩展只允许在“我的商品/我的闲鱼”页面提取。
+        </div>
+        <label class="dropzone">
+          <input id="sourceFile" type="file" accept=".csv,.json,text/csv,application/json">
+          <span>选择 CSV / JSON 文件</span>
+          <small>单次最多 1000 条；每条必须 rights_confirmed=true</small>
+        </label>
+        <div class="actions">
+          <button id="importButton" class="button primary">导入文件</button>
+          <button id="generateAllButton" class="button">生成全部待处理内容</button>
+        </div>
+        <output id="importResult" class="result" aria-live="polite"></output>
+      </section>
+
+      <section class="panel settings">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">02 · BRAND & PAIRING</p>
+            <h2>品牌与扩展配对</h2>
+          </div>
+        </div>
+        <label>品牌名<input id="brandName" maxlength="40"></label>
+        <label>图片水印<input id="watermarkText" maxlength="80"></label>
+        <div class="actions">
+          <button id="saveSettingsButton" class="button">保存品牌设置</button>
+          <button id="pairingButton" class="button subtle">显示一次配对信息</button>
+        </div>
+        <div id="pairingBox" class="pairing hidden">
+          <label>本地服务地址<input id="pairingUrl" readonly></label>
+          <label>扩展配对令牌<input id="pairingToken" type="password" readonly></label>
+          <div class="actions">
+            <button id="copyPairingTokenButton" class="button subtle">复制配对令牌</button>
+            <output id="pairingCopyStatus" class="result" aria-live="polite"></output>
+          </div>
+          <p>把两项填入扩展“选项”。令牌只存本机，禁止截图或发送给他人。</p>
+        </div>
+      </section>
+
+      <section class="panel queue">
+        <div class="panel-heading queue-heading">
+          <div>
+            <p class="eyebrow">03 · APPROVAL QUEUE</p>
+            <h2>内容与发布队列</h2>
+          </div>
+          <div class="actions">
+            <button id="approveButton" class="button primary">审批选中任务</button>
+            <button id="refreshButton" class="button subtle">刷新</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="check"><input id="selectAll" type="checkbox" aria-label="全选可审批任务"></th>
+                <th>商品</th>
+                <th>价格 / 交易</th>
+                <th>图片</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="jobRows"></tbody>
+          </table>
+        </div>
+        <div id="emptyState" class="empty hidden">还没有任务。先导入自有商品资料。</div>
+      </section>
+    </main>
+  </div>
+  <template id="jobRowTemplate">
+    <tr>
+      <td class="check"><input class="job-check" type="checkbox"></td>
+      <td><strong class="job-title"></strong><small class="job-source"></small><p class="job-desc"></p></td>
+      <td><strong class="job-price"></strong><small class="job-delivery"></small></td>
+      <td><div class="thumbs"></div></td>
+      <td><span class="status"></span><small class="job-error"></small></td>
+      <td><div class="row-actions"></div></td>
+    </tr>
+  </template>
+  <dialog id="reviewDialog">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">FULL CONTENT REVIEW</p>
+        <h2 id="reviewTitle">完整内容复核</h2>
+      </div>
+      <button id="closeReviewButton" class="button subtle" type="button">关闭</button>
+    </div>
+    <div id="reviewMeta" class="review-meta"></div>
+    <section class="review-section">
+      <h3>来源事实</h3>
+      <dl id="reviewFacts"></dl>
+    </section>
+    <section class="review-section">
+      <h3>将填写到闲鱼的完整文案</h3>
+      <pre id="reviewDescription"></pre>
+    </section>
+    <section class="review-section">
+      <h3>将上传的水印图片</h3>
+      <div id="reviewImages" class="review-images"></div>
+    </section>
+    <div class="notice">请逐项核对来源事实、完整文案、价格、原价、交易方式和全部图片。复核标记绑定当前内容哈希；内容变化后必须重新复核。</div>
+    <button id="confirmReviewButton" class="button primary" type="button">确认已核对完整内容</button>
+  </dialog>
+  <script src="/static/app.js"></script>
+</body>
+</html>

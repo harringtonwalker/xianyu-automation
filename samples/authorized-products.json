@@ -1,0 +1,16 @@
+[
+  {
+    "source_type": "local",
+    "external_id": "DEMO-001",
+    "title": "示例品牌不锈钢保温杯",
+    "facts": {
+      "材质": "304不锈钢",
+      "容量": "500毫升"
+    },
+    "price": "89",
+    "original_price": "129",
+    "delivery": "包邮",
+    "rights_confirmed": true,
+    "notes": "演示资料，请替换为你有权销售的真实商品事实"
+  }
+]

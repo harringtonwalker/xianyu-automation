@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>闲鱼经营自动化中枢</title>
+  <style>
+    body{width:350px;margin:0;padding:20px;background:#f4f6f8;color:#172033;font:14px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+    h1{font-size:20px;margin:0 0 5px}.sub{color:#6c7483;margin:0 0 16px;line-height:1.5}
+    .card{padding:14px;background:#fff;border:1px solid #dfe3ea;border-radius:14px;margin-bottom:10px}
+    button{width:100%;border:1px solid #cbd1da;border-radius:10px;padding:10px;margin-top:8px;background:#fff;font-weight:750;cursor:pointer}
+    button.primary{background:#ffb900;border-color:#ffb900}.status{font-size:12px;color:#6c7483;white-space:pre-wrap;line-height:1.5}
+    a{color:#7e6200}.ok{color:#237a52}.bad{color:#a63b32}label{display:block;margin:10px 0 5px;color:#6c7483}select,input{box-sizing:border-box;width:100%;padding:9px;border:1px solid #cbd1da;border-radius:9px;background:#fff}.hidden{display:none}
+  </style>
+</head>
+<body>
+  <h1>闲鱼经营自动化中枢</h1>
+  <p class="sub">只处理自有商品页和本地已审批队列。</p>
+  <section class="card">
+    <strong>当前页面预检</strong>
+    <button id="preflight">检查闲鱼发布页契约</button>
+    <div id="preflightResult" class="status"></div>
+  </section>
+  <section class="card">
+    <strong>自有商品源</strong>
+    <label for="delivery">本批商品交易方式</label>
+    <select id="delivery">
+      <option value="">请选择，不允许系统猜测</option>
+      <option value="无需邮寄">无需邮寄</option>
+      <option value="包邮">包邮</option>
+      <option value="按距离计费">按距离计费</option>
+      <option value="一口价">一口价</option>
+    </select>
+    <div id="shippingFeeGroup" class="hidden">
+      <label for="shippingFee">固定邮费（元）</label>
+      <input id="shippingFee" inputmode="decimal" placeholder="例如 12.00">
+    </div>
+    <button id="extract" class="primary">从当前“我的商品”页面导入</button>
+    <div id="extractResult" class="status"></div>
+  </section>
+  <section class="card">
+    <button id="poll">立即检查已审批队列</button>
+    <p><a href="#" id="options">打开配对设置</a></p>
+    <div id="runtimeResult" class="status"></div>
+  </section>
+  <script src="popup.js"></script>
+</body>
+</html>

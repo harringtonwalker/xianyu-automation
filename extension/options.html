@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>闲鱼自动化扩展设置</title>
+  <style>
+    body{margin:0;background:#f3f5f8;color:#172033;font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+    main{max-width:680px;margin:56px auto;background:#fff;border:1px solid #dfe3ea;border-radius:22px;padding:30px;box-shadow:0 14px 38px rgba(23,32,51,.08)}
+    h1{margin:0 0 8px}.lead{color:#687181;margin:0 0 26px;line-height:1.6}
+    label{display:grid;gap:7px;margin:18px 0;color:#5e6878}
+    input{border:1px solid #cbd1da;border-radius:11px;padding:12px;font:inherit}
+    .check{display:flex;align-items:center;gap:9px}.check input{width:auto}
+    button{border:0;border-radius:11px;padding:11px 16px;background:#ffb900;color:#2a230c;font-weight:800;cursor:pointer}
+    #status{margin-left:12px;color:#237a52}.notice{padding:14px;border-radius:12px;background:#fff4cc;color:#68550e;line-height:1.6}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>扩展与本地中枢配对</h1>
+    <p class="lead">配对信息从本地控制台“品牌与扩展配对”区域复制。扩展不读取 Cookie，也不申请 debugger 权限。</p>
+    <div class="notice">配对令牌相当于本机发布队列钥匙。不要截图、发群或提交到 Git。</div>
+    <label>本地服务地址<input id="serverUrl" placeholder="http://127.0.0.1:8766"></label>
+    <label>扩展配对令牌<input id="extensionToken" type="password" autocomplete="off"></label>
+    <label>闲鱼本人用户 ID<input id="xianyuOwnerUserId" inputmode="numeric" placeholder="从本人闲鱼个人页 URL 的 userId 获取"></label>
+    <label class="check"><input id="pollingEnabled" type="checkbox"> 自动轮询已审批任务</label>
+    <button id="save">保存并测试连接</button><span id="status"></span>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

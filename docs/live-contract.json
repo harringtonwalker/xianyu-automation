@@ -1,0 +1,51 @@
+{
+  "observed_at": "2026-07-30",
+  "url": "https://www.goofish.com/publish",
+  "account_state": "logged_in",
+  "method": "reversible raw DOM contract probe plus packaged-extension semantic preflight; Publish was not clicked",
+  "publisher_clicked": false,
+  "risk_signal": "",
+  "blank_form_defaults": {
+    "delivery": "包邮",
+    "delivery_is_platform_default_not_user_draft": true,
+    "self_pickup_enabled": false,
+    "location_present": true,
+    "description_length": 0,
+    "price": "",
+    "original_price": "",
+    "image_count": 0,
+    "upload_region_text": "宝贝图片 * 添加首图",
+    "blank_upload_preview_count": 1,
+    "blank_upload_icon_fragment": "O1CN016XczIR1iimNeEcZoh_"
+  },
+  "base_contract": {
+    "descriptor": {
+      "path": "/publish",
+      "fileAccept": [
+        "image/png, image/jpg, image/jpeg, image/heic, image/webp"
+      ],
+      "editorCount": 1,
+      "fieldAnchors": [
+        "价格 *",
+        "原价"
+      ],
+      "rawPriceCount": 2,
+      "delivery": [
+        "包邮",
+        "按距离计费",
+        "一口价",
+        "无需邮寄"
+      ],
+      "publishCount": 1
+    },
+    "signature": "5dd2c232"
+  },
+  "flat_shipping_signature": "7eeb481c",
+  "reversible_fill_readback": {
+    "description": true,
+    "price": "1999",
+    "original_price": "2999",
+    "delivery": "无需邮寄",
+    "cleared_by_reload": true
+  }
+}

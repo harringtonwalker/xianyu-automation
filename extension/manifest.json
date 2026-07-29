@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "闲鱼经营自动化中枢",
+  "version": "1.0.0",
+  "description": "只执行本地控制台已审批的闲鱼发布任务，并在页面漂移或风控时停止。",
+  "permissions": ["storage", "alarms"],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "闲鱼经营自动化中枢"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.goofish.com/publish*",
+        "https://www.goofish.com/item*",
+        "https://www.goofish.com/personal*",
+        "https://myseller.taobao.com/*/SellManage/*",
+        "https://myseller.taobao.com/SellManage/*"
+      ],
+      "js": ["core.js", "content-runtime.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

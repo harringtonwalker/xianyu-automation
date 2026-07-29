@@ -1,0 +1,29 @@
+[project]
+name = "xianyu-ops"
+version = "1.0.0"
+description = "Local, approval-gated Xianyu listing automation control plane"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+authors = [{name = "harringtonwalker"}]
+keywords = [
+  "xianyu",
+  "goofish",
+  "listing-automation",
+  "chrome-extension",
+  "watermark",
+  "human-in-the-loop",
+]
+dependencies = ["Pillow==12.2.0"]
+
+[project.scripts]
+xianyu-ops = "xianyu_ops.server:main"
+
+[project.urls]
+Homepage = "https://github.com/harringtonwalker/xianyu-automation"
+Repository = "https://github.com/harringtonwalker/xianyu-automation"
+Issues = "https://github.com/harringtonwalker/xianyu-automation/issues"
+Documentation = "https://github.com/harringtonwalker/xianyu-automation#readme"
+
+[tool.setuptools]
+packages = ["xianyu_ops"]

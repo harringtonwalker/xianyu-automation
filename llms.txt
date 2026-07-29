@@ -1,0 +1,70 @@
+# Xianyu Automation
+
+> A local, approval-gated, fail-closed Xianyu/Goofish listing workflow for owned or explicitly authorized product data.
+
+Canonical repository: https://github.com/harringtonwalker/xianyu-automation
+License: Apache-2.0
+Primary language: Chinese documentation; Python service; JavaScript Chrome extension
+Supported production validation environment: macOS, Google Chrome, Python 3.11+
+
+## What this project does
+
+- Imports product facts from local CSV/JSON, an explicitly bound owner's Xianyu profile, or authenticated Taobao seller inventory.
+- Rejects arbitrary item pages, other users' profiles, missing rights confirmation, unstable product identity, and unsupported claims.
+- Generates truthful listing copy and three 1080x1080 images with configurable brand watermarks.
+- Requires a human to review the complete facts, copy, prices, delivery mode, and all image bytes.
+- Places reviewed tasks in an approval queue protected by a separate global publisher switch.
+- Uses a least-privilege Chrome Manifest V3 extension to fill a new blank Xianyu publish page.
+- Accepts publication success only after a strict HTTPS goofish.com/item URL, unique item ID, exact title, and numeric price match.
+- Persists revisions, deduplication, leases, recovery, receipts, failures, and reconciliation in local SQLite.
+
+## Safety invariants
+
+- No Cookie read, export, or injection.
+- No Chrome cookies, debugger, tabs, stealth, CAPTCHA bypass, fingerprint spoofing, competitor scraping, or watermark removal.
+- No automatic retry after submission begins without a verified receipt.
+- CAPTCHA, risk prompts, DOM drift, upload uncertainty, or receipt uncertainty disables the global publisher.
+- Runtime data, databases, assets, logs, backups, pairing tokens, API keys, account IDs, and customer materials are excluded from Git.
+- The project is independent and is not affiliated with Xianyu, Goofish, Alibaba, or their affiliates.
+
+## Human workflow
+
+1. Start the local server.
+2. Load and pair the unpacked Chrome extension.
+3. Import only owned or authorized product data.
+4. Generate content and watermarked images.
+5. Review the full content and approve a bounded batch.
+6. Run the semantic preflight on a blank Xianyu publish page.
+7. Explicitly enable the publisher.
+8. Verify strict item receipts and disable the publisher after the batch.
+
+## Authoritative files
+
+- README.md: product explanation, installation, operation, limits, and task states.
+- docs/architecture.md: components, data flow, trust boundaries, and state transitions.
+- docs/verification-report.md: current test and real-page evidence boundary.
+- docs/live-contract.json: machine-readable observed publish-page contract.
+- SECURITY.md: vulnerability reporting and non-negotiable security properties.
+- CONTRIBUTING.md: accepted contribution scope.
+- pyproject.toml: package metadata and machine-readable project keywords.
+
+## Important entry points
+
+- xianyu_ops/server.py: loopback HTTP control plane.
+- xianyu_ops/store.py: SQLite workflow and receipt state.
+- xianyu_ops/policy.py: authorization and content policy.
+- xianyu_ops/content.py: deterministic and optional provider content generation.
+- xianyu_ops/imaging.py: watermark image generation.
+- extension/manifest.json: Chrome permissions and narrow content-script scope.
+- extension/core.js: validation, page contract, risk and receipt helpers.
+- extension/content.js: publish-page fill and submit workflow.
+- extension/service-worker.js: queue polling and execution association.
+
+## Verification
+
+Run:
+
+./scripts/setup.command
+./scripts/verify.command
+
+The repository currently records 41 passing Python tests and 20 passing Node.js tests. It records real-page contract and packaged-extension preflight evidence, but does not claim that a real listing has been published as part of repository acceptance.

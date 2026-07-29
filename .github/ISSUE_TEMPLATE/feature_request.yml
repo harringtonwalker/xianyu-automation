@@ -1,0 +1,33 @@
+name: Feature request
+description: Propose a compliant, approval-gated improvement.
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What operator problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed outcome
+      description: Describe the user-visible result, not only a library or selector.
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Rights and safety impact
+      description: Explain source authorization, permissions, publication approval, retries, and failure behavior.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Project boundaries
+      options:
+        - label: This request does not require Cookie export, CAPTCHA bypass, stealth, competitor scraping, watermark removal, or removal of human approval.
+          required: true
