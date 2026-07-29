@@ -1,6 +1,6 @@
 [project]
 name = "xianyu-ops"
-version = "1.0.1"
+version = "1.0.2"
 description = "Local, approval-gated Xianyu listing automation control plane"
 readme = "README.md"
 requires-python = ">=3.11"

@@ -56,7 +56,7 @@ class OperationsService:
         return {
             "ok": True,
             "service": "xianyu-ops",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "publisher_enabled": bool(self.refresh_config()["publisher_enabled"]),
             "platform_contract": "goofish-web-publish-2026-07-28",
             "counts": counts,

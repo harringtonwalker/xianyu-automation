@@ -52,6 +52,16 @@ class ServerHttpTests(unittest.TestCase):
         self.assertEqual(headers.get("x-content-type-options"), "nosniff")
         self.assertEqual(headers.get("x-frame-options"), "DENY")
         self.assertIn("default-src 'self'", headers.get("content-security-policy", ""))
+        status, _, cors_headers = self.request(
+            "GET",
+            "/api/health",
+            headers={"Origin": self.server.service.base_url},  # type: ignore[attr-defined]
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(
+            cors_headers.get("access-control-allow-origin"),
+            self.server.service.base_url,  # type: ignore[attr-defined]
+        )
         logger_handler = self.server.request_logger.handlers[0]  # type: ignore[attr-defined]
         self.assertEqual(logger_handler.maxBytes, 10 * 1024 * 1024)
         self.assertEqual(logger_handler.backupCount, 3)

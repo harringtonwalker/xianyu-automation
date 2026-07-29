@@ -70,7 +70,7 @@ class Handler(BaseHTTPRequestHandler):
         request_path = urlparse(self.path).path
         allowed_origin = ""
         if origin == self.service.base_url:
-            allowed_origin = origin
+            allowed_origin = self.service.base_url
         if allowed_origin:
             self.send_header("Access-Control-Allow-Origin", allowed_origin)
             self.send_header("Vary", "Origin")

@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.2] - 2026-07-30
+
+### Security
+
+- Return the server-owned loopback origin value instead of reflecting the matching request header into CORS responses.
+
 ## [1.0.1] - 2026-07-30
 
 ### Security

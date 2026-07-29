@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "闲鱼经营自动化中枢",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "只执行本地控制台已审批的闲鱼发布任务，并在页面漂移或风控时停止。",
   "permissions": ["storage", "alarms"],
   "host_permissions": [
