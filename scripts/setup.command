@@ -19,6 +19,7 @@ fi
 "$PYTHON_BOOTSTRAP" -m venv "$VENV_DIR"
 "$VENV_DIR/bin/python" -m pip install --upgrade pip
 "$VENV_DIR/bin/python" -m pip install -r "$PROJECT_DIR/requirements.lock"
-"$VENV_DIR/bin/python" -c 'import PIL; raise SystemExit(PIL.__version__ != "12.2.0")'
+"$VENV_DIR/bin/python" -m pip install --editable "$PROJECT_DIR"
+"$VENV_DIR/bin/python" -c 'import PIL; raise SystemExit(PIL.__version__ != "12.3.0")'
 
 echo "安装完成。下一步运行：./scripts/start.command"

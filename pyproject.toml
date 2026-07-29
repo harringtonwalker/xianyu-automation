@@ -1,6 +1,6 @@
 [project]
 name = "xianyu-ops"
-version = "1.0.0"
+version = "1.0.1"
 description = "Local, approval-gated Xianyu listing automation control plane"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -14,7 +14,7 @@ keywords = [
   "watermark",
   "human-in-the-loop",
 ]
-dependencies = ["Pillow==12.2.0"]
+dependencies = ["Pillow==12.3.0"]
 
 [project.scripts]
 xianyu-ops = "xianyu_ops.server:main"

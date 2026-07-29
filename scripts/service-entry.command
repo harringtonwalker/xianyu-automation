@@ -16,8 +16,8 @@ for log_path in "$LOG_DIR/service.out.log" "$LOG_DIR/service.err.log"; do
   fi
 done
 
-if ! "$PYTHON_BIN" -c 'import PIL; raise SystemExit(PIL.__version__ != "12.2.0")'; then
-  echo "Pillow 版本不匹配；必须安装 requirements.lock 中的 12.2.0。" >&2
+if ! "$PYTHON_BIN" -c 'import PIL; raise SystemExit(PIL.__version__ != "12.3.0")'; then
+  echo "Pillow 版本不匹配；必须安装 requirements.lock 中的 12.3.0。" >&2
   exit 1
 fi
 

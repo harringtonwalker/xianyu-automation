@@ -269,7 +269,10 @@ test("manifest has no cookie debugger or stealth privileges", () => {
   assert.equal(manifest.permissions.includes("cookies"), false);
   assert.equal(manifest.permissions.includes("debugger"), false);
   assert.equal(manifest.permissions.includes("tabs"), false);
-  assert.equal(manifest.host_permissions.some((item) => item.includes("goofish.com")), false);
+  assert.deepEqual(manifest.host_permissions, [
+    "http://127.0.0.1/*",
+    "http://localhost/*",
+  ]);
   assert.equal(manifest.content_scripts[0].matches.includes("https://www.goofish.com/*"), false);
   assert.equal(JSON.stringify(manifest).includes("stealth"), false);
 });

@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.1] - 2026-07-30
+
+### Security
+
+- Upgrade Pillow to 12.3.0 to resolve current upstream security advisories;
+- stop reflecting Chrome extension origins into CORS response headers;
+- validate extension write origins with the exact Chrome extension ID format;
+- replace a test-only URL substring assertion with an exact permission allowlist.
+
 ## [1.0.0] - 2026-07-30
 
 ### Added

@@ -71,10 +71,6 @@ class Handler(BaseHTTPRequestHandler):
         allowed_origin = ""
         if origin == self.service.base_url:
             allowed_origin = origin
-        elif origin.startswith("chrome-extension://") and (
-            request_path.startswith("/api/extension/") or request_path.startswith("/api/assets/")
-        ):
-            allowed_origin = origin
         if allowed_origin:
             self.send_header("Access-Control-Allow-Origin", allowed_origin)
             self.send_header("Vary", "Origin")
@@ -242,7 +238,10 @@ class Handler(BaseHTTPRequestHandler):
         origin_allowed = (
             not origin
             or origin == self.service.base_url
-            or (origin.startswith("chrome-extension://") and path.startswith("/api/extension/"))
+            or (
+                re.fullmatch(r"chrome-extension://[a-p]{32}", origin) is not None
+                and path.startswith("/api/extension/")
+            )
         )
         if not origin_allowed:
             self._error(403, "ORIGIN_FORBIDDEN", "拒绝非本地控制台或未配对扩展发起的写入")
