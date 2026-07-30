@@ -108,7 +108,7 @@ cd xianyu-automation
 | `RUNNING` | 保持页面和服务运行，不要重复点击 |
 | `AWAITING_RECEIPT` | 已触发提交，等待同一页面回执，不要重试 |
 | `PUBLISHED` | 核对商品 URL、item ID、标题和价格 |
-| `BLOCKED` | 查看阻断原因，先处理风控、页面漂移或材料问题 |
+| `BLOCKED` | 查看阻断原因；回执不确定时错误码为 `RECEIPT_UNCERTAIN`，必须先人工对账 |
 | `FAILED` | 核查失败原因，修正后重新复核和批准 |
 | `SUPERSEDED` | 旧修订已失效，使用最新修订 |
 

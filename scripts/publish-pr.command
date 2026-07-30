@@ -46,6 +46,24 @@ if [[ -n "$(git status --porcelain --untracked-files=normal)" ]]; then
   exit 1
 fi
 
+PR_RECORD="$(gh pr list \
+  --repo "$EXPECTED_REPOSITORY" \
+  --state open \
+  --base main \
+  --head "$BRANCH" \
+  --json url,isDraft \
+  --jq 'if length == 0 then "" else "\(.[0].url)\t\(.[0].isDraft)" end')"
+
+if [[ -n "$PR_RECORD" ]]; then
+  PR_URL="${PR_RECORD%%$'\t'*}"
+  PR_IS_DRAFT="${PR_RECORD##*$'\t'}"
+  if [[ "$PR_IS_DRAFT" != "true" ]]; then
+    print -u2 "Refusing automatic sync: the existing PR is no longer a draft."
+    print -u2 "Review and push this branch manually if the ready-for-review PR should change: ${PR_URL}"
+    exit 1
+  fi
+fi
+
 git fetch --quiet origin main
 if ! git merge-base --is-ancestor origin/main HEAD; then
   print -u2 "Refusing to publish: this branch does not contain the latest origin/main."
@@ -63,15 +81,22 @@ fi
 
 git push --set-upstream origin "HEAD:refs/heads/${BRANCH}"
 
-PR_URL="$(gh pr list \
+PR_RECORD="$(gh pr list \
   --repo "$EXPECTED_REPOSITORY" \
   --state open \
   --base main \
   --head "$BRANCH" \
-  --json url \
-  --jq '.[0].url // ""')"
+  --json url,isDraft \
+  --jq 'if length == 0 then "" else "\(.[0].url)\t\(.[0].isDraft)" end')"
 
-if [[ -n "$PR_URL" ]]; then
+if [[ -n "$PR_RECORD" ]]; then
+  PR_URL="${PR_RECORD%%$'\t'*}"
+  PR_IS_DRAFT="${PR_RECORD##*$'\t'}"
+  if [[ "$PR_IS_DRAFT" != "true" ]]; then
+    print -u2 "The branch was pushed, but the existing PR became ready for review during synchronization."
+    print -u2 "Automatic draft synchronization stopped: ${PR_URL}"
+    exit 1
+  fi
   print "Draft PR updated: ${PR_URL}"
   exit 0
 fi

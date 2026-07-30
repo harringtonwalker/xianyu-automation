@@ -23,7 +23,7 @@ cd /path/to/xianyu-automation
 
 Result:
 
-- Python unittest: 46 passed, including 5 Git automation and publication-boundary failure-path tests
+- Python unittest: 59 passed, including 18 Git automation and publication-boundary failure-path tests
 - Node test: 20 passed across core/contract and upload-runtime suites
 - Python compileall: passed
 - Node syntax checks for extension and dashboard: passed

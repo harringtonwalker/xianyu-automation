@@ -36,27 +36,44 @@ def git(*args: str) -> bytes:
 records = git("ls-files", "--stage", "-z").split(b"\0")
 failures: list[tuple[str, str]] = []
 
-forbidden_roots = {
+forbidden_directory_parts = {
     ".agents",
     ".codex",
     ".venv",
+    "backup",
     "backups",
+    "customer",
+    "customer-data",
+    "customer_data",
+    "customers",
     "data",
+    "exports",
+    "generated",
     "htmlcov",
     "logs",
     "node_modules",
+    "private",
+    "receipts",
+    "unpublished",
 }
-forbidden_parts = {
+generated_directory_parts = {
     "__pycache__",
     ".pytest_cache",
 }
 forbidden_names = {
     ".env",
+    ".git-credentials",
+    ".netrc",
+    ".npmrc",
+    ".pypirc",
+    "config.json",
+    "credentials.json",
     "cookies.json",
     "hosts.yml",
     "id_dsa",
     "id_ed25519",
     "id_rsa",
+    "secrets.json",
 }
 forbidden_suffixes = {
     ".db",
@@ -70,6 +87,12 @@ forbidden_suffixes = {
     ".sqlite",
     ".sqlite3",
 }
+allowed_structured_data = {
+    "docs/live-contract.json",
+    "extension/manifest.json",
+    "samples/authorized-products.csv",
+    "samples/authorized-products.json",
+}
 secret_patterns = [
     ("GitHub token", re.compile(rb"\bgh[opusr]_[A-Za-z0-9_]{20,}\b")),
     ("GitHub fine-grained token", re.compile(rb"\bgithub_pat_[A-Za-z0-9_]{20,}\b")),
@@ -80,6 +103,29 @@ secret_patterns = [
     ("private key", re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----")),
     ("local home path", re.compile(rb"/Users/[A-Za-z0-9._-]+/")),
 ]
+quoted_credential_assignment_rule = re.compile(
+    rb"(?im)^\s*(?:export\s+)?"
+    rb"[A-Z0-9_]*(?:TOKEN|SECRET|PASSWORD|PASSWD|API_KEY|ACCESS_KEY|PRIVATE_KEY)"
+    rb"[A-Z0-9_]*\s*[:=]\s*[\"']([^\s\"'#]{8,})[\"']"
+)
+unquoted_credential_assignment_rule = re.compile(
+    rb"(?m)^\s*(?:export\s+)?"
+    rb"[A-Z0-9_]*(?:TOKEN|SECRET|PASSWORD|PASSWD|API_KEY|ACCESS_KEY|PRIVATE_KEY)"
+    rb"[A-Z0-9_]*\s*[:=]\s*([A-Za-z0-9_./+=-]{16,})\s*(?:#.*)?$"
+)
+placeholder_fragments = {
+    b"${",
+    b"<",
+    b"changeme",
+    b"dummy",
+    b"example",
+    b"fake",
+    b"placeholder",
+    b"redacted",
+    b"sample",
+    b"test",
+    b"xxx",
+}
 sensitive_identifier_pattern = re.compile(
     rb"(?i)\b(?:user|account)[_-]?id\b\s*[:=]\s*[\"']?[0-9]{6,}"
 )
@@ -92,6 +138,7 @@ for raw_record in records:
     path = raw_path.decode("utf-8")
     pure_path = PurePosixPath(path)
     parts = pure_path.parts
+    lower_parts = tuple(part.lower() for part in parts)
     lower_name = pure_path.name.lower()
     lower_suffix = pure_path.suffix.lower()
 
@@ -101,10 +148,10 @@ for raw_record in records:
     if mode in {"120000", "160000"}:
         failures.append((path, "symlinks and submodules are not public-source inputs"))
         continue
-    if parts and parts[0] in forbidden_roots:
+    if any(part in forbidden_directory_parts for part in lower_parts[:-1]):
         failures.append((path, "private runtime directory"))
         continue
-    if any(part in forbidden_parts for part in parts):
+    if any(part in generated_directory_parts for part in lower_parts):
         failures.append((path, "generated cache directory"))
         continue
     if lower_name.startswith(".env") and lower_name != ".env.example":
@@ -112,6 +159,9 @@ for raw_record in records:
         continue
     if lower_name in forbidden_names or lower_suffix in forbidden_suffixes:
         failures.append((path, "private or generated file type"))
+        continue
+    if lower_suffix in {".csv", ".json"} and path not in allowed_structured_data:
+        failures.append((path, "structured data file is not on the public allowlist"))
         continue
 
     content = git("show", f":{path}")
@@ -129,6 +179,18 @@ for raw_record in records:
     for rule_name, pattern in secret_patterns:
         if pattern.search(content):
             failures.append((path, rule_name))
+    for assignment_rule in (
+        quoted_credential_assignment_rule,
+        unquoted_credential_assignment_rule,
+    ):
+        for match in assignment_rule.finditer(content):
+            value = match.group(1).lower()
+            if not any(fragment in value for fragment in placeholder_fragments):
+                failures.append((path, "credential assignment"))
+                break
+        else:
+            continue
+        break
     if parts and parts[0] not in {"samples", "tests"}:
         if sensitive_identifier_pattern.search(content):
             failures.append((path, "account identifier"))
