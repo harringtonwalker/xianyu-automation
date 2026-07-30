@@ -94,6 +94,7 @@ class GitAutomationTests(unittest.TestCase):
 
         self.assertIn("--draft", content)
         self.assertIn("--base main", content)
+        self.assertIn("printf '%s\\n'", content)
         self.assertNotIn("gh pr merge", content)
         self.assertNotIn("--auto", content)
 

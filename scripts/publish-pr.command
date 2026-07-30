@@ -82,22 +82,23 @@ BODY_FILE="$(mktemp -t xianyu-auto-pr.XXXXXX)"
 trap 'rm -f "$BODY_FILE"' EXIT
 
 {
-  print "## What changed"
-  print
-  print "Automatically synchronized the intentional Codex commit \`${SHORT_SHA}\` from \`${BRANCH}\`."
-  print
-  print "Commit: ${COMMIT_SUBJECT}"
-  print
-  print "## Safety and data boundary"
-  print
-  print "- The local publication-boundary check passed."
-  print "- Runtime data, credentials, logs, backups, generated assets, and private product material are excluded."
-  print "- This workflow never pushes \`main\`, enables auto-merge, or merges the PR."
-  print
-  print "## Verification"
-  print
-  print "- \`./scripts/verify.command\`"
-  print "- GitHub CI and CodeQL must pass before human review and merge."
+  printf '%s\n' \
+    "## What changed" \
+    "" \
+    "Automatically synchronized the intentional Codex commit \`${SHORT_SHA}\` from \`${BRANCH}\`." \
+    "" \
+    "Commit: ${COMMIT_SUBJECT}" \
+    "" \
+    "## Safety and data boundary" \
+    "" \
+    "- The local publication-boundary check passed." \
+    "- Runtime data, credentials, logs, backups, generated assets, and private product material are excluded." \
+    "- This workflow never pushes \`main\`, enables auto-merge, or merges the PR." \
+    "" \
+    "## Verification" \
+    "" \
+    "- \`./scripts/verify.command\`" \
+    "- GitHub CI and CodeQL must pass before human review and merge."
 } > "$BODY_FILE"
 
 PR_URL="$(gh pr create \
