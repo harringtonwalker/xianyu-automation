@@ -1,0 +1,25 @@
+#!/bin/zsh
+set -euo pipefail
+
+PROJECT_DIR="$(git rev-parse --show-toplevel)"
+cd "$PROJECT_DIR"
+
+BRANCH="$(git branch --show-current)"
+if [[ "$BRANCH" != codex/* ]]; then
+  exit 0
+fi
+
+GIT_DIR="$(git rev-parse --git-dir)"
+for marker in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD; do
+  if [[ -e "$GIT_DIR/$marker" ]]; then
+    print -u2 "Automatic PR sync skipped while a Git operation is in progress."
+    print -u2 "After it finishes, run: ./scripts/publish-pr.command"
+    exit 0
+  fi
+done
+
+if ! ./scripts/publish-pr.command; then
+  print -u2 "The commit is safe locally, but automatic GitHub PR sync failed."
+  print -u2 "Fix the reported cause, then run: ./scripts/publish-pr.command"
+  exit 1
+fi

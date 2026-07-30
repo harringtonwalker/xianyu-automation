@@ -21,7 +21,8 @@ Supported production validation environment: macOS, Google Chrome, Python 3.11+
 ## Safety invariants
 
 - No Cookie read, export, or injection.
-- No Chrome cookies, debugger, tabs, stealth, CAPTCHA bypass, fingerprint spoofing, competitor scraping, or watermark removal.
+- No Chrome cookies, debugger, tabs, stealth, CAPTCHA bypass, fingerprint spoofing, competitor copy/republication, or watermark removal.
+- Public competitor metadata may only be considered in a separate, bounded market-intelligence feature that remains isolated from the publication queue. That feature is not implemented by this statement.
 - No automatic retry after submission begins without a verified receipt.
 - CAPTCHA, risk prompts, DOM drift, upload uncertainty, or receipt uncertainty disables the global publisher.
 - Runtime data, databases, assets, logs, backups, pairing tokens, API keys, account IDs, and customer materials are excluded from Git.
@@ -29,18 +30,29 @@ Supported production validation environment: macOS, Google Chrome, Python 3.11+
 
 ## Human workflow
 
-1. Start the local server.
-2. Load and pair the unpacked Chrome extension.
+First-time setup:
+
+1. Run setup and start the local server.
+2. Load the unpacked Chrome extension from the repository's extension directory.
+3. Pair it with the token copied directly from the local control console.
+4. Run a semantic preflight on a blank Xianyu publish page.
+
+Daily operation:
+
+1. Start the local server and confirm the correct account is logged in.
+2. Confirm the extension is paired and the global publisher is disabled.
 3. Import only owned or authorized product data.
-4. Generate content and watermarked images.
-5. Review the full content and approve a bounded batch.
-6. Run the semantic preflight on a blank Xianyu publish page.
-7. Explicitly enable the publisher.
-8. Verify strict item receipts and disable the publisher after the batch.
+4. Generate content and three watermarked images.
+5. Review every fact, full text, price, delivery mode, and image.
+6. Approve a bounded batch.
+7. Run a fresh semantic preflight on a blank Xianyu publish page.
+8. Explicitly enable the publisher.
+9. Verify strict item receipts, disable the publisher, and make a backup.
 
 ## Authoritative files
 
 - README.md: product explanation, installation, operation, limits, and task states.
+- docs/user-guide.md: canonical first-time setup, daily operation, state, troubleshooting, and competitor-intelligence boundary.
 - docs/architecture.md: components, data flow, trust boundaries, and state transitions.
 - docs/verification-report.md: current test and real-page evidence boundary.
 - docs/live-contract.json: machine-readable observed publish-page contract.
@@ -67,4 +79,4 @@ Run:
 ./scripts/setup.command
 ./scripts/verify.command
 
-The repository currently records 41 passing Python tests and 20 passing Node.js tests. It records real-page contract and packaged-extension preflight evidence, but does not claim that a real listing has been published as part of repository acceptance.
+The repository currently records 66 passing Python tests and 20 passing Node.js tests. It records real-page contract and packaged-extension preflight evidence, but does not claim that a real listing has been published as part of repository acceptance.

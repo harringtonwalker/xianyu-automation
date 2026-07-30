@@ -1,0 +1,12 @@
+#!/bin/zsh
+set -euo pipefail
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [[ "$remote_ref" == "refs/heads/main" ]]; then
+    print -u2 "Blocked: this repository does not allow local direct pushes to main."
+    print -u2 "Push a codex/* branch and use a reviewed pull request instead."
+    exit 1
+  fi
+done
+
+exit 0

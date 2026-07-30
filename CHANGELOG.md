@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+### Added
+
+- Project-local Codex hooks that verify intentional commits, block direct `main`
+  pushes, push `codex/*` branches, and create or update draft pull requests;
+- a publication-boundary scanner for credentials, private runtime paths, account
+  identifiers, binary material, symlinks, and oversized files;
+- a canonical first-time setup, daily operation, status, and troubleshooting
+  guide for non-developer users.
+
+### Changed
+
+- Clarify that bounded public competitor metadata may be proposed only for
+  isolated market intelligence; copying competitor text/images, watermark
+  removal, access-control bypass, and publication-queue reuse remain prohibited.
+
 ## [1.0.2] - 2026-07-30
 
 ### Security
