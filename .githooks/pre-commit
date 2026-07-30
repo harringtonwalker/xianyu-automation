@@ -1,0 +1,8 @@
+#!/bin/zsh
+set -euo pipefail
+
+PROJECT_DIR="$(git rev-parse --show-toplevel)"
+cd "$PROJECT_DIR"
+
+./scripts/check-publication-boundary.command
+./scripts/verify.command

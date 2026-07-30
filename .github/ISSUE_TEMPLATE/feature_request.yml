@@ -29,5 +29,5 @@ body:
     attributes:
       label: Project boundaries
       options:
-        - label: This request does not require Cookie export, CAPTCHA bypass, stealth, competitor scraping, watermark removal, or removal of human approval.
+        - label: This request does not require Cookie export, CAPTCHA bypass, stealth, competitor text/image copying, watermark removal, access-control bypass, or removal of human approval.
           required: true

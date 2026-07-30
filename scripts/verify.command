@@ -17,6 +17,8 @@ if [[ -d "$EVIDENCE_DIR" ]]; then
   cmp -s "$EVIDENCE_DIR/verification-report.md" "$PROJECT_DIR/docs/verification-report.md"
 fi
 
+./scripts/check-publication-boundary.command
+
 export PYTHONPATH="$PROJECT_DIR"
 "$PYTHON_BIN" -m unittest discover -s tests -p 'test_*.py' -v
 node --test tests/extension-core.test.js
@@ -36,4 +38,12 @@ zsh -n scripts/restore.command
 zsh -n scripts/setup.command
 zsh -n scripts/install-login-service.command
 zsh -n scripts/uninstall-login-service.command
+zsh -n scripts/check-publication-boundary.command
+zsh -n scripts/install-git-automation.command
+zsh -n scripts/uninstall-git-automation.command
+zsh -n scripts/start-codex-change.command
+zsh -n scripts/publish-pr.command
+zsh -n .githooks/pre-commit
+zsh -n .githooks/pre-push
+zsh -n .githooks/post-commit
 plutil -lint scripts/launch-agent.plist.template >/dev/null
