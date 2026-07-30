@@ -292,7 +292,7 @@ llms.txt           面向 AI 工具的项目摘要与权威入口
 
 Xianyu Automation is a local, approval-gated workflow for Xianyu/Goofish listing operations. It imports owned or explicitly authorized product facts, generates truthful copy and three branded 1080×1080 images, requires a human review bound to the exact content, fills a fresh publish page through a least-privilege Chrome MV3 extension, and accepts success only after a strict item receipt check.
 
-The system deliberately does **not** export cookies, request debugger privileges, bypass CAPTCHA or risk controls, scrape competitors, remove watermarks, or retry an uncertain submission. It is an independent open-source project and is not affiliated with Xianyu or Alibaba.
+The system deliberately does **not** export cookies, request debugger privileges, bypass CAPTCHA or risk controls, copy or republish competitor text/images, remove watermarks, or retry an uncertain submission. Bounded public competitor metadata may only be proposed as a separate market-intelligence feature isolated from publication; that feature is not implemented today. This is an independent open-source project and is not affiliated with Xianyu or Alibaba.
 
 For machine-readable project context, see [llms.txt](llms.txt).
 
