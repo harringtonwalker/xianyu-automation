@@ -70,7 +70,13 @@ class GitAutomationTests(unittest.TestCase):
         destination.chmod(0o755)
         return destination
 
-    def fake_gh_env(self, repo: Path, pr_record: str = "") -> dict[str, str]:
+    def fake_gh_env(
+        self,
+        repo: Path,
+        pr_record: str = "",
+        *,
+        authenticated: bool = True,
+    ) -> dict[str, str]:
         bin_dir = Path(tempfile.mkdtemp(prefix="xianyu-fake-gh-"))
         self.addCleanup(shutil.rmtree, bin_dir, True)
         gh = bin_dir / "gh"
@@ -81,7 +87,7 @@ class GitAutomationTests(unittest.TestCase):
             pr_output = "  print -r -- ''\n"
         gh.write_text(
             "#!/bin/zsh\n"
-            "if [[ \"$1 $2\" == \"auth status\" ]]; then exit 0; fi\n"
+            f"if [[ \"$1 $2\" == \"auth status\" ]]; then exit {0 if authenticated else 1}; fi\n"
             "if [[ \"$1 $2\" == \"pr list\" ]]; then\n"
             f"{pr_output}"
             "  exit 0\n"
@@ -156,6 +162,53 @@ class GitAutomationTests(unittest.TestCase):
         self.assertIn("settings.txt: credential assignment", result.stderr)
         self.assertNotIn("realvalue1234567890", result.stderr)
 
+    def test_publication_boundary_rejects_lowercase_quoted_credential(self) -> None:
+        repo = self.make_repo()
+        script = self.copy_boundary_script(repo)
+        credential_text = "api_" + 'key = "real-secret-value-123456"\n'
+        (repo / "settings.py").write_text(credential_text, encoding="utf-8")
+        self.assertEqual(run(["git", "add", "."], cwd=repo).returncode, 0)
+
+        result = run([str(script)], cwd=repo)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("settings.py: credential assignment", result.stderr)
+
+    def test_publication_boundary_rejects_lowercase_unquoted_credential(self) -> None:
+        repo = self.make_repo()
+        script = self.copy_boundary_script(repo)
+        credential_text = "service_" + "token: realSecretValue123456\n"
+        (repo / "settings.yml").write_text(credential_text, encoding="utf-8")
+        self.assertEqual(run(["git", "add", "."], cwd=repo).returncode, 0)
+
+        result = run([str(script)], cwd=repo)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("settings.yml: credential assignment", result.stderr)
+
+    def test_publication_boundary_does_not_allow_placeholder_substrings(self) -> None:
+        repo = self.make_repo()
+        script = self.copy_boundary_script(repo)
+        credential_text = "service_" + 'token = "contestSecretValue123456"\n'
+        (repo / "settings.py").write_text(credential_text, encoding="utf-8")
+        self.assertEqual(run(["git", "add", "."], cwd=repo).returncode, 0)
+
+        result = run([str(script)], cwd=repo)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("settings.py: credential assignment", result.stderr)
+
+    def test_publication_boundary_allows_exact_placeholder_value(self) -> None:
+        repo = self.make_repo()
+        script = self.copy_boundary_script(repo)
+        placeholder_text = "service_" + 'token = "placeholder"\n'
+        (repo / "example.py").write_text(placeholder_text, encoding="utf-8")
+        self.assertEqual(run(["git", "add", "."], cwd=repo).returncode, 0)
+
+        result = run([str(script)], cwd=repo)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_publication_boundary_rejects_unapproved_structured_data(self) -> None:
         repo = self.make_repo()
         script = self.copy_boundary_script(repo)
@@ -193,6 +246,29 @@ class GitAutomationTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn(
             "linked.txt: symlinks and submodules are not public-source inputs",
+            result.stderr,
+        )
+
+    def test_publication_boundary_rejects_submodule_entry(self) -> None:
+        repo = self.make_repo()
+        script = self.copy_boundary_script(repo)
+        result = run(
+            [
+                "git",
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                f"160000,{('1' * 40)},vendor/module",
+            ],
+            cwd=repo,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+        result = run([str(script)], cwd=repo)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(
+            "vendor/module: symlinks and submodules are not public-source inputs",
             result.stderr,
         )
 
@@ -251,6 +327,19 @@ class GitAutomationTests(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("origin is not harringtonwalker/xianyu-automation", result.stderr)
+
+    def test_publish_script_rejects_expired_github_authentication(self) -> None:
+        repo = self.make_committed_repo()
+        script = self.copy_publish_script(repo)
+
+        result = run(
+            [str(script)],
+            cwd=repo,
+            env=self.fake_gh_env(repo, authenticated=False),
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("GitHub CLI is not authenticated", result.stderr)
 
     def test_publish_script_rejects_non_codex_branch(self) -> None:
         repo = self.make_committed_repo("feature/test")
@@ -349,6 +438,22 @@ class GitAutomationTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("skipped while a Git operation is in progress", result.stderr)
+
+    def test_post_commit_propagates_publish_failure_with_recovery_hint(self) -> None:
+        repo = self.make_committed_repo()
+        hook = repo / "post-commit"
+        shutil.copy2(ROOT / ".githooks" / "post-commit", hook)
+        hook.chmod(0o755)
+        publisher = repo / "scripts" / "publish-pr.command"
+        publisher.parent.mkdir()
+        publisher.write_text("#!/bin/zsh\nexit 7\n", encoding="utf-8")
+        publisher.chmod(0o755)
+
+        result = run([str(hook)], cwd=repo)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("automatic GitHub PR sync failed", result.stderr)
+        self.assertIn("./scripts/publish-pr.command", result.stderr)
 
 
 if __name__ == "__main__":

@@ -76,7 +76,7 @@ flowchart LR
 
 ## 当前验证状态
 
-- Python 回归：59 项通过，其中 18 项覆盖 GitHub 自动 PR 和公开边界失败路径；
+- Python 回归：66 项通过，其中 25 项覆盖 GitHub 自动 PR 和公开边界失败路径；
 - Node.js 回归：20 项通过；
 - Python 编译、JavaScript 语法、Chrome 权限、LaunchAgent 和备份/恢复检查通过；
 - 已在真实登录发布页完成只读/可逆字段核对；

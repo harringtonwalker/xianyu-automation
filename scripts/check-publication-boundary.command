@@ -100,6 +100,7 @@ secret_patterns = [
     ("AWS access key", re.compile(rb"\bAKIA[0-9A-Z]{16}\b")),
     ("Google API key", re.compile(rb"\bAIza[0-9A-Za-z_-]{35}\b")),
     ("Slack token", re.compile(rb"\bxox[baprs]-[A-Za-z0-9-]{20,}\b")),
+    ("JWT", re.compile(rb"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b")),
     ("private key", re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----")),
     ("local home path", re.compile(rb"/Users/[A-Za-z0-9._-]+/")),
 ]
@@ -109,13 +110,11 @@ quoted_credential_assignment_rule = re.compile(
     rb"[A-Z0-9_]*\s*[:=]\s*[\"']([^\s\"'#]{8,})[\"']"
 )
 unquoted_credential_assignment_rule = re.compile(
-    rb"(?m)^\s*(?:export\s+)?"
+    rb"(?im)^\s*(?:export\s+)?"
     rb"[A-Z0-9_]*(?:TOKEN|SECRET|PASSWORD|PASSWD|API_KEY|ACCESS_KEY|PRIVATE_KEY)"
-    rb"[A-Z0-9_]*\s*[:=]\s*([A-Za-z0-9_./+=-]{16,})\s*(?:#.*)?$"
+    rb"[A-Z0-9_]*\s*[:=]\s*([A-Z0-9_+/=-]{16,})\s*(?:#.*)?$"
 )
-placeholder_fragments = {
-    b"${",
-    b"<",
+placeholder_values = {
     b"changeme",
     b"dummy",
     b"example",
@@ -126,6 +125,19 @@ placeholder_fragments = {
     b"test",
     b"xxx",
 }
+
+
+def is_placeholder(value: bytes) -> bool:
+    normalized = value.strip().lower()
+    if normalized in placeholder_values:
+        return True
+    if normalized.startswith(b"${") and normalized.endswith(b"}"):
+        return True
+    if normalized.startswith(b"<") and normalized.endswith(b">"):
+        return True
+    return bool(normalized) and set(normalized) <= set(b"x*._-")
+
+
 sensitive_identifier_pattern = re.compile(
     rb"(?i)\b(?:user|account)[_-]?id\b\s*[:=]\s*[\"']?[0-9]{6,}"
 )
@@ -184,8 +196,7 @@ for raw_record in records:
         unquoted_credential_assignment_rule,
     ):
         for match in assignment_rule.finditer(content):
-            value = match.group(1).lower()
-            if not any(fragment in value for fragment in placeholder_fragments):
+            if not is_placeholder(match.group(1)):
                 failures.append((path, "credential assignment"))
                 break
         else:

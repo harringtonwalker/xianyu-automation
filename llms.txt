@@ -79,4 +79,4 @@ Run:
 ./scripts/setup.command
 ./scripts/verify.command
 
-The repository currently records 59 passing Python tests and 20 passing Node.js tests. It records real-page contract and packaged-extension preflight evidence, but does not claim that a real listing has been published as part of repository acceptance.
+The repository currently records 66 passing Python tests and 20 passing Node.js tests. It records real-page contract and packaged-extension preflight evidence, but does not claim that a real listing has been published as part of repository acceptance.
